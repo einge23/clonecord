@@ -8,14 +8,23 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useNavigate } from "react-router";
+import { Badge } from "@/components/ui/badge";
 
 export default function DashboardContent() {
   const chats = useQuery(api.chats.getChatsForUser);
   const users = useQuery(api.users.getUsers);
+  const unreadCounts = useQuery(
+    api.messages.getUnreadCounts,
+    chats ? { chatIds: chats.map((chat) => chat._id) } : "skip",
+  );
 
   const navigate = useNavigate();
   const handleStartChat = (otherUserId: string) => {
     navigate(`/chat/new?userId=${otherUserId}`);
+  };
+
+  const handleOpenChat = (chatId: string) => {
+    navigate(`/chat/${chatId}`);
   };
 
   return (
@@ -58,9 +67,17 @@ export default function DashboardContent() {
         chats.map((chat) => (
           <div
             key={chat._id}
-            className="flex items-center justify-between px-4 py-2 hover:bg-accent rounded-md"
+            className="flex items-center justify-between px-4 py-2 hover:bg-accent rounded-md cursor-pointer"
+            onClick={() => handleOpenChat(chat._id)}
           >
-            <span>{chat.name}</span>
+            <div className="flex items-center gap-2">
+              <span>{chat.name}</span>
+              {unreadCounts && unreadCounts[chat._id] > 0 && (
+                <Badge variant="secondary" className="ml-2">
+                  {unreadCounts[chat._id]}
+                </Badge>
+              )}
+            </div>
             <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
               <Users className="h-4 w-4" />
             </Button>

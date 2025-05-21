@@ -47,6 +47,7 @@ export default defineSchema({
     messages: v.array(v.id("messages")),
     chatType: v.union(v.literal("direct"), v.literal("group")),
     serverId: v.optional(v.id("servers")),
+    lastReadBy: v.optional(v.record(v.id("users"), v.float64())),
   }),
   chatMembers: defineTable({
     chatId: v.id("chats"),
